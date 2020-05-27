@@ -1,0 +1,42 @@
+[Unit]
+Description=Rclone VFS Mount
+After=network-online.target
+
+[Service]
+User=seed
+Group=seed
+Type=notify
+ExecStartPre=/bin/sleep 10
+ExecStart=/usr/bin/rclone mount \
+  --user-agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/537.36' \
+  --config=/home/seed/.config/rclone/rclone.conf \
+  --allow-other \
+  --rc \
+  --rc-addr=localhost:5574 \
+  --fast-list \
+  --dir-cache-time=168h \
+  --drive-skip-gdocs \
+  --poll-interval=30s \
+  --vfs-cache-max-age=168h \
+  --vfs-cache-mode=writes \
+  --vfs-cache-poll-interval=30s \
+  --vfs-read-chunk-size=4M \
+  --vfs-read-chunk-size-limit=512M \
+  --tpslimit-burst=50 \
+  --transfers=16 \
+  --checkers=12 \
+  --use-mmap \
+  --no-checksum \
+  --timeout=10m \
+  --umask=002 \
+  --syslog \
+  -vv \
+  mnts-fw-seed: /mnt/fw-seed
+ExecStop=/bin/fusermount -uz /mnt/fw-seed
+Restart=on-abort
+RestartSec=5
+StartLimitInterval=60s
+StartLimitBurst=3
+
+[Install]
+WantedBy=default.target
