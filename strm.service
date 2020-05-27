@@ -1,0 +1,32 @@
+[Unit]
+Description=Rclone VFS Mount
+After=network-online.target
+
+[Service]
+User=seed
+Group=seed
+Type=notify
+ExecStartPre=/bin/sleep 10
+ExecStart=/usr/bin/rclone mount \
+  --user-agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/537.36' \
+  --config=/home/seed/.config/rclone/rclone.conf \
+  --allow-other \
+  --rc \
+  --rc-addr=localhost:5573 \
+  --fast-list \
+  --drive-skip-gdocs \
+  --dir-cache-time=168h \
+  --timeout=10m \
+  --use-mmap \
+  --umask=002 \
+  --syslog \
+  -v \
+  mnts-cb-inbound: /mnt/cb-inbound
+ExecStop=/bin/fusermount -uz /mnt/cb-inbound
+Restart=on-abort
+RestartSec=5
+StartLimitInterval=60s
+StartLimitBurst=3
+
+[Install]
+WantedBy=default.target
